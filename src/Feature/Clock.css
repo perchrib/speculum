@@ -1,0 +1,12 @@
+.clock{
+	text-align: center;
+}
+.clock > p{
+	font-size: 1000%;
+}
+
+@media screen and (max-width: 800px){
+	.clock > p{
+		font-size: 500%
+	}
+}
