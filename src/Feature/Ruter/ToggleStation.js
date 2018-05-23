@@ -1,33 +1,6 @@
 import React, {Component} from 'react';
-import { Collapse, Button, CardBody, Card, Col} from 'reactstrap';
+import { Collapse, Button, CardBody, Card} from 'reactstrap';
 import ToggleLine from './ToggleLine';
-
-
-class Transportation{
-    constructor(destinationRef, lineNumber, destinationName, platform){
-        this.destinationRef = destinationRef;
-        this.lineNumber = lineNumber;
-        this.destinationName = destinationName;
-        this.platform = platform;
-    }
-    arrivalTime = [];
-    expectedArrivalTime = [];
-    timeLeftToArrival = [];
-
-    static subtractDates(ms){
-        let d, h, m, s;
-        s = Math.floor(ms / 1000);
-        m = Math.floor(s / 60);
-        s = s % 60;
-        h = Math.floor(m / 60);
-        m = m % 60;
-        d = Math.floor(h / 24);
-        h = h % 24;
-        return `${m} min:${s} sec  `;
-        // shall do this return [ d, h, m, s ];
-        //return { d: d, h: h, m: m, s: s };
-    }
-}
 
 class ToggleStation extends Component{
 
@@ -49,20 +22,15 @@ class ToggleStation extends Component{
     updateApi = () =>{
         const stationId = this.state.id;
         const url = `http://reisapi.ruter.no/StopVisit/GetDepartures/${stationId}`;
-        let stationToCity = [];
-        let stationFromCity = [];
         
         let transportations = new Map();
         var platforms = new Map();
-        let arrivals = [];
 
         fetch(url)
         .then(result => result.json())
         .then((data) => {
-            //console.log(data[0])
             data.forEach((element) => {
-                //console.log(element.MonitoredVehicleJourney)
-                let lineNumber = element.MonitoredVehicleJourney.LineRef;
+                let lineId = element.MonitoredVehicleJourney.LineRef;
                 let destinationName = element.MonitoredVehicleJourney.DestinationName;
                 let destinationRef = element.MonitoredVehicleJourney.DestinationRef;
                 let platform = element.MonitoredVehicleJourney.MonitoredCall.DeparturePlatformName;
@@ -75,13 +43,13 @@ class ToggleStation extends Component{
                     transport = transportations.get(destinationRef);
                 }
                 else{
-                    transport = new Transportation(destinationRef, lineNumber, destinationName, platform);
+                    transport = new Transportation(destinationRef, lineId, destinationName, platform);
                     transportations.set(destinationRef, transport);
                 }
                 transport.arrivalTime.push(new Date(aimedArrivalTime));
                 var dateExpected = new Date(expectedArrivalTime);
                 transport.expectedArrivalTime.push(dateExpected);
-                transport.timeLeftToArrival.push(Transportation.subtractDates(dateExpected.valueOf() - new Date().valueOf()));
+                transport.timeLeftToArrival.push(subtractDates(dateExpected, new Date()));
                 
 
             });
@@ -100,28 +68,17 @@ class ToggleStation extends Component{
             this.setState((prevState, props) => ({
                 numUpdates: prevState.numUpdates + 1, platforms:platforms,platformKeys:platformKeys, time: new Date()
               }));
-            //this.setState({platforms:platforms,platformKeys:platformKeys, time: new Date(), numUpdates: })
         })
         .catch(error => console.log("parsing failed", error))
     };
 
     update = () => {
-        // this.setState({
-		// 	time: new Date()
-		// })
 		this.updateApi();
 	};
-
-
     render(){
-        console.log("Parent -- " + this.state.time.toLocaleTimeString());
-        
-        const listItems = this.state.platformKeys.map((platformKey, index) =>
-        <div key={index}>
-            <h1>Platform {platformKey}</h1>
-            <ToggleLine arrivals={this.state.platforms.get(platformKey)} time={this.state.time} numUpdates={this.state.numUpdates}/>
-        {/* {transport.lineNumber}-{transport.destination}-<h1>{transport.platform}</h1>-{transport.timeLeftToArrival.h}:{transport.timeLeftToArrival.m}:{transport.timeLeftToArrival.s}  */}
-        </div>);
+        const listItems = this.state.platformKeys.sort().map((platformKey) =>
+            <ToggleLine key={platformKey.toString()} platformNumber={platformKey} arrivals={this.state.platforms.get(platformKey)} time={this.state.time} numUpdates={this.state.numUpdates}/>
+        );
         
         return (
             <div>
@@ -141,7 +98,36 @@ class ToggleStation extends Component{
             </div>
         );
     }
+}
 
+const subtractDates = (newDate, oldDate) => {
+        let ms = newDate.valueOf() - oldDate.valueOf();
+        //let d, h, m, s;
+        let m, s;
+        s = Math.floor(ms / 1000);
+        m = Math.floor(s / 60);
+        s = s % 60;
+        m = m % 60;
+        //h = Math.floor(m / 60);
+        
+        //d = Math.floor(h / 24);
+        //h = h % 24;
+        return `${m} min:${s} sec  `;
+        // shall do this return [ d, h, m, s ];
+        //return { d: d, h: h, m: m, s: s };
+    
+}
+
+class Transportation{
+    constructor(destinationRef, lineNumber, destinationName, platform){
+        this.destinationRef = destinationRef;
+        this.lineNumber = lineNumber;
+        this.destinationName = destinationName;
+        this.platform = platform;
+    }
+    arrivalTime = [];
+    expectedArrivalTime = [];
+    timeLeftToArrival = [];
 }
 
 export default ToggleStation;

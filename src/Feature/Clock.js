@@ -24,7 +24,7 @@ class Clock extends Component {
 	};
 
 	render(){
-		let year = this.state.time.getFullYear();
+		//let year = this.state.time.getFullYear();
 		let month = Months[this.state.time.getMonth()]
 		let day = this.state.time.getDate()
 		let weekDay = Days[this.state.time.getDay()];

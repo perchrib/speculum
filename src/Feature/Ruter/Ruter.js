@@ -1,22 +1,6 @@
 import React, {Component} from 'react';
 import ToggleStation from './ToggleStation';
 
-
-class Station {
-    constructor(name, xpos, ypos, id, yourLocation){
-        this.name = name;
-        this.xpos = xpos;
-        this.ypos = ypos;
-        this.id = id;
-        this.distance = this.getManhattenDistance(xpos, ypos, yourLocation);
-    }
-
-    getManhattenDistance(x, y, yourLocation){
-        return Math.abs(x - yourLocation[0]) + Math.abs(y - yourLocation[1])
-    }
-
-}
-
 class Ruter extends Component{
     constructor(props){
         super(props)
@@ -27,8 +11,8 @@ class Ruter extends Component{
     componentWillReceiveProps(nextProps){
 
         if(nextProps.position.latitude !== this.props.position.latitude && nextProps.position.longitude !== this.props.position.longitude){
-            const eastString = parseInt(nextProps.position.utmEast.toString().split('.')[0]);
-            const northString = parseInt(nextProps.position.utmNorth.toString().split('.')[0]);
+            const eastString = parseInt(nextProps.position.utmEast.toString().split('.')[0], 10);
+            const northString = parseInt(nextProps.position.utmNorth.toString().split('.')[0], 10);
             
             this.setState({utmEast: eastString, utmNorth:northString}, function() {
                 this.getStations();      
@@ -50,20 +34,14 @@ class Ruter extends Component{
         var stations = [];
         fetch(url).then(result => result.json())
         .then((data) => {
-            console.log("url -- " + url)
-            console.log(data)
-            
             data.forEach(element => {
                 stations.push(new Station(element.Name, element.X, element.Y, element.ID, [this.state.utmEast, this.state.utmNorth]))
-                console.log(element.Name)
             });
             stations.sort(function(a, b) {
                 return parseFloat(a.distance) - parseFloat(b.distance);
             });
             
             this.setState({stations});
-            console.log("mhm");
-            console.log(stations);
         })
         .catch(error => console.log("parsing failed", error));
     }
@@ -89,6 +67,20 @@ class Ruter extends Component{
         );
     }
 
+}
+
+class Station {
+    constructor(name, xpos, ypos, id, yourLocation){
+        this.name = name;
+        this.xpos = xpos;
+        this.ypos = ypos;
+        this.id = id;
+        this.distance = this.getManhattenDistance(xpos, ypos, yourLocation);
+    }
+
+    getManhattenDistance(x, y, yourLocation){
+        return Math.abs(x - yourLocation[0]) + Math.abs(y - yourLocation[1])
+    }
 }
 
 export default Ruter;
