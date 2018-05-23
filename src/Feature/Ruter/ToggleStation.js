@@ -50,8 +50,6 @@ class ToggleStation extends Component{
                 var dateExpected = new Date(expectedArrivalTime);
                 transport.expectedArrivalTime.push(dateExpected);
                 transport.timeLeftToArrival.push(subtractDates(dateExpected, new Date()));
-                
-
             });
             transportations.forEach((value, key) => {
                 if(platforms.has(value.platform)){
