@@ -1,3 +1,4 @@
-Smart mirror project.
+#Speculum is a smart mirror project.
+
 Features: 
-	1) Ruter
+	1. Ruter
