@@ -26,7 +26,7 @@ class ToggleLine extends Component{
         return (
             <div>
             <h2>Platform {this.state.platformNumber}</h2>    
-            {platformList}
+            {this.state.arrivals.length > 0 ? platformList : <span>Ingenting</span>}
             </div>
         );
     }

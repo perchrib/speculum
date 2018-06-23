@@ -1,74 +1,54 @@
 import React, { Component } from 'react';
-import { Container, Row, Col} from 'reactstrap';
+import { Container, Row, Col } from 'reactstrap';
 import Clock from './Feature/Clock';
 import Ruter from './Feature/Ruter/Ruter';
 import './App.css'
+import getPosition from './Resources/Location';
 
-const utmObj = require('utm-latlng');
-const utm=new utmObj();
-
-class App extends Component{
-    constructor(props){
+class App extends Component {
+    constructor(props) {
         super(props);
         this.state = {
-            position: {
-                latitude: null,
-                longitude: null,
-                utmEast: null,
-                utmNorth: null
-            }
-
-        }
+            position: {},
+            isLoading: true,
+            errorMessage: ""
+        };
     }
 
-    async componentDidMount() {
-        if ("geolocation" in navigator) {
-            await this.loadPosition();
-          }
-      }
-
-      //https://steemit.com/programming/@leighhalliday/converting-geolocation-from-callbacks-into-async-await-javascript
-    async loadPosition() {
-        try {
-            const position = await this.getCurrentPosition();
-            const { latitude, longitude } = position.coords;
-            var {Easting, Northing}= utm.convertLatLngToUtm(latitude, longitude, 7);
-            this.setState({
-                position: {
-                    latitude, 
-                    longitude,
-                    utmEast: Easting,
-                    utmNorth: Northing
-                }
-            });
-        } catch (error) {
-            console.log(error);
-        }
-    };
-    
-    getCurrentPosition(options = {}){
-        return new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, options);
+    componentDidMount() {
+        getPosition((response) => {
+            if (response.success) {
+                this.setState({ position: response.data, isLoading: false });
+            }
+            else {
+                this.setState({ isLoading: false, errorMessage: response.errorMessage });
+            }
         });
-    };
+    }
 
-    render(){
+    render() {
         return (
-        <Container fluid={true}>
-            <Row>
+            <Container fluid={true}>
+                <Row>
+                    <Col>
+                        <Clock />
+                    </Col>
+                </Row>
                 <Col>
-                    <Clock />
+                    {renderRuter(this.state.position, this.state.isLoading)}
                 </Col>
-            </Row>
-                <Col>
-                    <Ruter position={(this.state.position)}/>
-                </Col>
-            <Row>
-                
-            </Row>
-        </Container>
+                <Row>
+
+                </Row>
+            </Container>
         );
     }
+}
+
+const renderRuter = (position, isLoading) => {
+    return (!isLoading ? <Ruter utmEast={position.utmEast} utmNorth={position.utmNorth} /> :
+        <span>Loading Position...</span>
+    );
 }
 
 export default App;
