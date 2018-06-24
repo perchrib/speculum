@@ -1,16 +1,25 @@
 import React, {Component} from 'react';
 import ToggleStation from './ToggleStation';
-import {getStations, getRadiusOfPosition} from '../../Resources/RuterApi';
+import {getStops, getRadiusOfPosition, getTransportationType} from '../../Resources/RuterApi';
 
 class Ruter extends Component{
     constructor(props){
         super(props)
-        this.state = {stations: []};
+        this.state = {stops: [], isLoading: true, errorMessage: ""};
     }
 
     componentDidMount(){
-        getStations(this.props.utmEast, this.props.utmNorth, (data) => {
-            this.setState({stations: data});
+        getStops(this.props.utmEast, this.props.utmNorth).then((response) => {
+            if(response.success){
+                this.setState({stops: response.data, isLoading:false});
+            }
+            else{
+                this.setState({isLoading:false, errorMessage: response.errorMessage});
+            }
+        });
+        getTransportationType(12).then((data) => {
+            console.log("test");
+            console.log(data);
         });
     }
 
@@ -26,16 +35,16 @@ class Ruter extends Component{
                     <p>{this.props.utmEast} -- {this.props.utmEast + 500}</p>
                 <h2>Y</h2>
                     <p>{this.props.utmNorth} -- {this.props.utmNorth + 500}</p>
-                <h1 style={{textAlign: 'center'}} >Nearest Stations</h1>
-                {renderStations(this.state.stations)}
+                <h1 style={{textAlign: 'center'}} >Nearest Stops</h1>
+                {renderStops(this.state.stops)}
             </div>
         );
     }
 }
-const renderStations = (stations) => {
-    return (stations ? 
-        stations.map((station) =>
-        <ToggleStation key={station.id.toString()} name={station.name} distance={station.distance} id={station.id}/>) : <span>laoading</span>
+const renderStops = (stops) => {
+    return (stops ? 
+        stops.map((stop) =>
+        <ToggleStation key={stop.id.toString()} name={stop.name} distance={stop.distance} id={stop.id}/>) : <span>laoading</span>
     );
 }
 

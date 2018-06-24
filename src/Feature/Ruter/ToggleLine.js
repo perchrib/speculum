@@ -4,20 +4,20 @@ import { ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText } fro
 class ToggleLine extends Component{
     constructor(props){
         super(props);
-        this.state = {arrivals:props.arrivals, time:props.time, numUpdates: props.numUpdates, platformNumber:props.platformNumber}
+        //this.state = {arrivals:props.arrivals, time:props.time, numUpdates: props.numUpdates, platformNumber:props.platformNumber}
     }
 
-    componentWillReceiveProps(nextProps){
-        if(nextProps.time > this.props.time && nextProps.numUpdates > this.props.numUpdates){
-            this.setState({arrivals: nextProps.arrivals, time: nextProps.time, numUpdates: nextProps.numUpdates});
-        }
-    }
+    // componentWillReceiveProps(nextProps){
+    //     if(nextProps.time > this.props.time && nextProps.numUpdates > this.props.numUpdates){
+    //         this.setState({arrivals: nextProps.arrivals, time: nextProps.time, numUpdates: nextProps.numUpdates});
+    //     }
+    // }
 
     render(){
-        const platformList = this.state.arrivals.map((arrivals) =>
+        const platformList = this.props.arrivals.map((arrivals) =>
         <ListGroup key={arrivals.destinationRef.toString() + arrivals.lineNumber.toString()}>
             <ListGroupItem>
-                <ListGroupItemHeading> Nr {arrivals.lineNumber} - To {arrivals.destinationName}</ListGroupItemHeading>
+                <ListGroupItemHeading>{arrivals.transportationType} Nr {arrivals.lineNumber} - To {arrivals.destinationName}</ListGroupItemHeading>
                     <Times arrivals={arrivals.timeLeftToArrival}/>
             </ListGroupItem>
         </ListGroup>
@@ -25,8 +25,8 @@ class ToggleLine extends Component{
 
         return (
             <div>
-            <h2>Platform {this.state.platformNumber}</h2>    
-            {this.state.arrivals.length > 0 ? platformList : <span>Ingenting</span>}
+            <h2>Platform {this.props.platformNumber}</h2>    
+            {this.props.arrivals.length > 0 ? platformList : <span>Ingenting</span>}
             </div>
         );
     }

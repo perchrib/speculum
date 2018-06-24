@@ -46,9 +46,7 @@ class App extends Component {
 }
 
 const renderRuter = (position, isLoading) => {
-    return (!isLoading ? <Ruter utmEast={position.utmEast} utmNorth={position.utmNorth} /> :
-        <span>Loading Position...</span>
-    );
+    return (isLoading ? <span>Loading Position...</span> : <Ruter utmEast={position.utmEast} utmNorth={position.utmNorth} />);
 }
 
 export default App;
