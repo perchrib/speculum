@@ -16,7 +16,7 @@ class App extends Component {
     }
 
     componentDidMount() {
-        getPosition((response) => {
+        getPosition().then(response => {
             if (response.success) {
                 this.setState({ position: response.data, isLoading: false });
             }

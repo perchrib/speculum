@@ -1,3 +1,5 @@
+import RequestService from '../Services/RequestService';
+
 //Get Stations
 const TransportationType = {
     0: "Walking",
@@ -37,28 +39,44 @@ function getRadiusOfPosition(utmEast, utmNorth, radius){
 
 // get stops
 const getStops = (utmEast, utmNorth) => {
-    var responseObj = new ResponseObj();
-    
+    //var responseObj = new ResponseObj();
     const {xmin, xmax, ymin, ymax} = getRadiusOfPosition(utmEast, utmNorth, 500);
-    var url = `http://reisapi.ruter.no/Place/GetStopsByArea?xmin=${xmin}&xmax=${xmax}&ymin=${ymin}&ymax=${ymax}`;
-    var stops = [];
-    return fetch(url)
-    .then(result => result.json())
-    .then((data) => {
-        data.forEach(element => {
-            let distance = getManhattenDistance(element.X, element.Y, utmEast, utmNorth);
-            stops.push({name: element.Name, xpos: element.X, ypos: element.Y, id: element.ID, distance: distance});
-        });
-        stops.sort(function(a, b) {
-            return parseFloat(a.distance) - parseFloat(b.distance);
-        });
-        responseObj.setSuccess(stops);
-        return responseObj;
-    })
-    .catch((error) => {
-        responseObj.setError("Could not load data.", error);
-        return responseObj;
+    let url = `http://reisapi.ruter.no/Place/GetStopsByArea?xmin=${xmin}&xmax=${xmax}&ymin=${ymin}&ymax=${ymax}`;
+    let stops = [];
+    return RequestService.get(url)
+    .then((response) => {
+        if(response.success){
+            response.data.forEach(element => {
+                let distance = getManhattenDistance(element.X, element.Y, utmEast, utmNorth);
+                stops.push({name: element.Name, lines: element.Lines, xpos: element.X, ypos: element.Y, id: element.ID, distance: distance});
+            });
+            stops.sort(function(a, b) {
+                return parseFloat(a.distance) - parseFloat(b.distance);
+            });
+            response.data = stops;
+            return response;
+        }
+        return response;
     });
+
+
+    // return fetch(url)
+    // .then(result => result.json())
+    // .then((data) => {
+    //     data.forEach(element => {
+    //         let distance = getManhattenDistance(element.X, element.Y, utmEast, utmNorth);
+    //         stops.push({name: element.Name, xpos: element.X, ypos: element.Y, id: element.ID, distance: distance});
+    //     });
+    //     stops.sort(function(a, b) {
+    //         return parseFloat(a.distance) - parseFloat(b.distance);
+    //     });
+    //     responseObj.setSuccess(stops);
+    //     return responseObj;
+    // })
+    // .catch((error) => {
+    //     responseObj.setError("Could not load data.", error);
+    //     return responseObj;
+    // });
 }
 
 const getManhattenDistance = (x, y, _x, _y) => {

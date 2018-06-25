@@ -1,7 +1,7 @@
 const utmObj = require('utm-latlng');
 const utm=new utmObj();
 
-const getPosition = async(callback) => {
+const getPosition = async() => {
     var responseObj = {data: {}, success: false, errorMessage: "", error: ""};
     if ("geolocation" in navigator) {
         responseObj = await loadPosition(responseObj);
@@ -9,7 +9,7 @@ const getPosition = async(callback) => {
     else{
         responseObj.errorMessage = "Geolocation in javascript not work.";
     }
-    callback(responseObj);
+    return responseObj;
   }
 
   //https://steemit.com/programming/@leighhalliday/converting-geolocation-from-callbacks-into-async-await-javascript
