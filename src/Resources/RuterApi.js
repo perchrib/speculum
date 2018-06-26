@@ -1,6 +1,13 @@
 import RequestService from '../Services/RequestService';
 
-//Get Stations
+var transportationLineTypes = new Map();
+
+const storeLines = (lines) => {
+    lines.forEach(line => {
+        transportationLineTypes.set(line.ID, {name: line.Name, type: TransportationType[line.Transportation]});
+    })
+}
+
 const TransportationType = {
     0: "Walking",
     1: "AirportBus",
@@ -13,22 +20,6 @@ const TransportationType = {
     8: "Metro"
 }
 
-
-function ResponseObj (){
-    this.data = {};
-    this.success = false;
-    this.errorMessage = "";
-    this.error = "";
-    this.setSuccess = function (data){
-        this.success = true;
-        this.data = data
-    }
-    this.setError = function (errorMessage, error){
-        this.errorMessage = errorMessage;
-        this.error = error;
-    }
-}
-
 function getRadiusOfPosition(utmEast, utmNorth, radius){
     const xmax = utmEast + radius;
     const xmin = utmEast - radius;
@@ -37,46 +28,26 @@ function getRadiusOfPosition(utmEast, utmNorth, radius){
     return {xmin, xmax, ymin, ymax};
 }
 
-// get stops
-const getStops = (utmEast, utmNorth) => {
-    //var responseObj = new ResponseObj();
+const getStops = async (utmEast, utmNorth) => {
     const {xmin, xmax, ymin, ymax} = getRadiusOfPosition(utmEast, utmNorth, 500);
-    let url = `http://reisapi.ruter.no/Place/GetStopsByArea?xmin=${xmin}&xmax=${xmax}&ymin=${ymin}&ymax=${ymax}`;
+    let url = `https://reisapi.ruter.no/Place/GetStopsByArea?xmin=${xmin}&xmax=${xmax}&ymin=${ymin}&ymax=${ymax}`;
     let stops = [];
-    return RequestService.get(url)
-    .then((response) => {
-        if(response.success){
-            response.data.forEach(element => {
-                let distance = getManhattenDistance(element.X, element.Y, utmEast, utmNorth);
-                stops.push({name: element.Name, lines: element.Lines, xpos: element.X, ypos: element.Y, id: element.ID, distance: distance});
-            });
-            stops.sort(function(a, b) {
-                return parseFloat(a.distance) - parseFloat(b.distance);
-            });
-            response.data = stops;
-            return response;
-        }
+    let response = await RequestService.get(url);
+
+    if(response.success){
+        response.data.forEach(element => {
+            let distance = getManhattenDistance(element.X, element.Y, utmEast, utmNorth);
+
+            storeLines(element.Lines);
+            stops.push({name: element.Name, xpos: element.X, ypos: element.Y, id: element.ID, distance: distance});
+        });
+        stops.sort(function(a, b) {
+            return parseFloat(a.distance) - parseFloat(b.distance);
+        });
+        response.data = stops;
         return response;
-    });
-
-
-    // return fetch(url)
-    // .then(result => result.json())
-    // .then((data) => {
-    //     data.forEach(element => {
-    //         let distance = getManhattenDistance(element.X, element.Y, utmEast, utmNorth);
-    //         stops.push({name: element.Name, xpos: element.X, ypos: element.Y, id: element.ID, distance: distance});
-    //     });
-    //     stops.sort(function(a, b) {
-    //         return parseFloat(a.distance) - parseFloat(b.distance);
-    //     });
-    //     responseObj.setSuccess(stops);
-    //     return responseObj;
-    // })
-    // .catch((error) => {
-    //     responseObj.setError("Could not load data.", error);
-    //     return responseObj;
-    // });
+    }
+    return response;
 }
 
 const getManhattenDistance = (x, y, _x, _y) => {
@@ -84,71 +55,53 @@ const getManhattenDistance = (x, y, _x, _y) => {
 }
 
 //Get all information in a stop
-const getStopInformation = async (stationId, callback) => {
-    const url = `http://reisapi.ruter.no/StopVisit/GetDepartures/${stationId}`;
-    let transports = new Map();
-    var platforms = new Map();
-
-    await fetch(url)
-    .then(result => result.json())
-    .then((data) => {
-        data.forEach((element) => {
-            let lineId = element.MonitoredVehicleJourney.LineRef;
+const getStopInformation = async (stationId) => {
+    const url = `https://reisapi.ruter.no/StopVisit/GetDepartures/${stationId}`;
+    let response = await RequestService.get(url);
+    if (response.success) {
+        let transports = new Map();
+        let platforms = new Map();
+        response.data.forEach((element) => {
+            let lineId = parseInt(element.MonitoredVehicleJourney.LineRef, 10);
             let destinationName = element.MonitoredVehicleJourney.DestinationName;
-            let destinationRef = element.MonitoredVehicleJourney.DestinationRef;
+            let destinationref = element.MonitoredVehicleJourney.DestinationRef;
             let platform = element.MonitoredVehicleJourney.MonitoredCall.DeparturePlatformName;
-            
+
             let aimedArrivalTime = element.MonitoredVehicleJourney.MonitoredCall.AimedArrivalTime;
             let expectedArrivalTime = element.MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime;
-            
+
             //Bug in ruterAPI same destinationref for some lines...
-            destinationRef = destinationRef + lineId;
+            let GUID = destinationref + lineId;
             var transport;
-            if(transports.has(destinationRef)){
-                transport = transports.get(destinationRef);
+            if (transports.has(GUID)) {
+                transport = transports.get(GUID);
             }
-            else{
-                transport = new Transportation(destinationRef, lineId, destinationName, platform);
-                transports.set(destinationRef, transport);
-                //transport.transportationType = getTransportationType(lineId).then(data => console.log(data));
-                // getTransportationType(lineId).then((data) => {
-                //     console.log(data);
-                // })
-                //debugger;
+            else {
+                let lineName = transportationLineTypes.get(lineId).name;
+                let lineType = transportationLineTypes.get(lineId).type;
+
+                transport = new Transportation(GUID, lineId, lineName, lineType, destinationName, platform);
+                transports.set(GUID, transport);
             }
+
             transport.arrivalTime.push(new Date(aimedArrivalTime));
             var dateExpected = new Date(expectedArrivalTime);
             transport.expectedArrivalTime.push(dateExpected);
             transport.timeLeftToArrival.push(subtractDates(dateExpected, new Date()));
         });
         transports.forEach((value, key) => {
-            if(platforms.has(value.platform)){
+            if (platforms.has(value.platform)) {
                 platforms.get(value.platform).push(value);
             }
-            else{
+            else {
                 platforms.set(value.platform, [value]);
             }
         });
-    })
-    .catch(error => console.log("parsing failed", error));
-    let platformKeys = Array.from( platforms.keys());
-    return {platforms: platforms, platformKeys: platformKeys};
-        
-}
-
-const getTransportationType = (lineId) => {
-    var responseObj = new ResponseObj();
-    let url = `http://reisapi.ruter.no/Line/GetDataByLineID/${lineId}`;
-    return fetch(url)
-    .then(result => result.json())
-    .then((data) => {
-        responseObj.setSuccess({transportation: TransportationType[data.Transportation], name: data.Name});
-        return responseObj;
-    })
-    .catch((error) => {
-        responseObj.setError("Could not load data.", error);
-        return responseObj;
-    });
+        let platformKeys = Array.from(platforms.keys());
+        response.data = { platforms: platforms, platformKeys: platformKeys };
+        return response;
+    }
+    return response;
 }
 
 const subtractDates = (newDate, oldDate) => {
@@ -170,16 +123,17 @@ const subtractDates = (newDate, oldDate) => {
 }
 
 class Transportation{
-    constructor(destinationRef, lineNumber, destinationName, platform){
-        this.destinationRef = destinationRef;
-        this.lineNumber = lineNumber;
+    constructor(guid, lineId, name, type, destinationName, platform){
+        this.id = guid;
+        this.lineId = lineId;
+        this.name = name;
+        this.type = type;
         this.destinationName = destinationName;
         this.platform = platform;
     }
-    transportationType = "unknown";
     arrivalTime = [];
     expectedArrivalTime = [];
     timeLeftToArrival = [];
 }
 
-export {getStops, getRadiusOfPosition, getStopInformation, getTransportationType};
+export {getStops, getRadiusOfPosition, getStopInformation};

@@ -14,11 +14,11 @@ class ToggleLine extends Component{
     // }
 
     render(){
-        const platformList = this.props.arrivals.map((arrivals) =>
-        <ListGroup key={arrivals.destinationRef.toString() + arrivals.lineNumber.toString()}>
+        const platformList = this.props.lines.map((line) =>
+        <ListGroup key={line.id.toString()}>
             <ListGroupItem>
-                <ListGroupItemHeading>{arrivals.transportationType} Nr {arrivals.lineNumber} - To {arrivals.destinationName}</ListGroupItemHeading>
-                    <Times arrivals={arrivals.timeLeftToArrival}/>
+                <ListGroupItemHeading>{line.type} {line.name} - To {line.destinationName}</ListGroupItemHeading>
+                    <Times arrivals={line.timeLeftToArrival}/>
             </ListGroupItem>
         </ListGroup>
         );
@@ -26,7 +26,7 @@ class ToggleLine extends Component{
         return (
             <div>
             <h2>Platform {this.props.platformNumber}</h2>    
-            {this.props.arrivals.length > 0 ? platformList : <span>Ingenting</span>}
+            {this.props.lines.length > 0 ? platformList : <span>Ingenting</span>}
             </div>
         );
     }

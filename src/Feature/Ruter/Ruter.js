@@ -17,10 +17,6 @@ class Ruter extends Component{
                 this.setState({isLoading:false, errorMessage: response.errorMessage});
             }
         });
-        getTransportationType(12).then((data) => {
-            console.log("test");
-            console.log(data);
-        });
     }
 
     render(){
@@ -42,9 +38,9 @@ class Ruter extends Component{
     }
 }
 const renderStops = (stops) => {
-    return (stops ? 
-        stops.map((stop) =>
-        <ToggleStation key={stop.id.toString()} name={stop.name} distance={stop.distance} id={stop.id}/>) : <span>laoading</span>
+    return (stops.length > 0 ? 
+        (stops.map((stop) =>
+        <ToggleStation key={stop.id.toString()} name={stop.name} distance={stop.distance} id={stop.id} lines={stop.lines}/>)) : <span>laoading</span>
     );
 }
 

@@ -8,29 +8,36 @@ class ToggleStation extends Component{
     constructor(props){
         super(props);
         this.toggle = this.toggle.bind(this);
-        this.state = {collapse: false, platforms: null, platformKeys:[], time: new Date(), numUpdates: 0}
+        this.state = {collapse: false, platforms: null, platformKeys:[], time: new Date(), numUpdates: 0, isLoading:false, errorMessage: "", error: ""};
     }
 
     toggle() {
-        this.setState({ collapse: !this.state.collapse });
+        this.setState({collapse: !this.state.collapse });
     }
 
     componentDidMount(){
         this.updateApi();
-        setInterval(this.updateApi, 100000);
+        setInterval(this.updateApi, 5000);
     }
 
-    updateApi = async () =>{
-        var data = await getStopInformation(this.props.id, this.props.name);
-        this.setState((prevState, props) => ({
-            numUpdates: prevState.numUpdates + 1, platforms:data.platforms,platformKeys:data.platformKeys, time: new Date()
-        }));
+    updateApi = () =>{
+        getStopInformation(this.props.id).then((response) => {
+            if(response.success){
+                this.setState((prevState, props) => ({
+                    numUpdates: prevState.numUpdates + 1, platforms: response.data.platforms, platformKeys:response.data.platformKeys, time: new Date()
+                }));
+            }
+            else{
+                this.setState({isLoading:false, errorMessage: response.errorMessage});
+            }
+        })
     };
 
     render(){
+        let lines = this.props.lines;
         const listItems = this.state.platformKeys.sort().map((platformKey) => {
-            let arrivals = this.state.platforms.get(platformKey);
-            return (<ToggleLine key={platformKey.toString()} platformNumber={platformKey} arrivals={arrivals} time={this.state.time} numUpdates={this.state.numUpdates}/>);
+            let lines = this.state.platforms.get(platformKey);
+            return (<ToggleLine key={platformKey.toString()} platformNumber={platformKey} lines={lines} time={this.state.time} numUpdates={this.state.numUpdates}/>);
         }
         );
         

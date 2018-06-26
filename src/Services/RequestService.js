@@ -3,11 +3,12 @@ class RequestService{
     createResponseObj (){
         return new ResponseObj();
     }
+    
     async get(url) {
         var responseObj =  this.createResponseObj();
         try{
             var response = await fetch(url);
-            if(response.ok){
+            if(response.ok && response.status === 200){
                 var content = await response.json();
                 responseObj.setSuccess(content);
                 return responseObj;
