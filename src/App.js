@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Container, Row, Col } from 'reactstrap';
 import Clock from './Feature/Clock';
-import Ruter from './Feature/Ruter/Ruter';
+import NearestStops from './Feature/Ruter/NearestStops';
 import './App.css'
-import getPosition from './Resources/Location';
+import getPosition from './Api/Location';
 
 class App extends Component {
     constructor(props) {
@@ -34,9 +34,10 @@ class App extends Component {
                         <Clock />
                     </Col>
                 </Row>
-                <Col>
-                    {renderRuter(this.state.position, this.state.isLoading)}
-                </Col>
+                    <Col>
+                        {/* {renderRuter(this.state.position, this.state.isLoading)} */}
+                        <RenderRuter isLoading={this.state.isLoading} position={this.state.position} />
+                    </Col>
                 <Row>
 
                 </Row>
@@ -45,8 +46,8 @@ class App extends Component {
     }
 }
 
-const renderRuter = (position, isLoading) => {
-    return (isLoading ? <span>Loading Position...</span> : <Ruter utmEast={position.utmEast} utmNorth={position.utmNorth} />);
+const RenderRuter = (props) => {
+    return (props.isLoading ? <span>Loading Position...</span> : <NearestStops utmEast={props.position.utmEast} utmNorth={props.position.utmNorth} />);
 }
 
 export default App;

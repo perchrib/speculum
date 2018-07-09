@@ -1,11 +1,7 @@
 class RequestService{
 
-    createResponseObj (){
-        return new ResponseObj();
-    }
-    
     async get(url) {
-        var responseObj =  this.createResponseObj();
+        var responseObj =  new ResponseObj();
         try{
             var response = await fetch(url);
             if(response.ok && response.status === 200){
