@@ -80,10 +80,21 @@ const getStopInformation = async (stationId) => {
                 transport = lines.get(GUID);
             }
             else {
-                let lineName = transportationLineTypes.get(lineId).name;
-                let lineType = transportationLineTypes.get(lineId).type;
-                transport = new Line(GUID, lineId, lineName, lineType, destinationName, platform);
-                lines.set(GUID, transport);
+                var lineName, lineType;
+                try{
+                    lineName = transportationLineTypes.get(lineId).name;
+                    lineType = transportationLineTypes.get(lineId).type;
+                }
+                catch(error){
+                    console.log(error + ": lineId => " + lineId);
+                    lineName = "unknown. lineId: " + lineId;
+                    lineType = "unknown. lineId: " + lineId;
+                }
+                finally{
+                    transport = new Line(GUID, lineId, lineName, lineType, destinationName, platform);
+                    lines.set(GUID, transport);
+                }
+
             }
 
             transport.arrivalTime.push(new Date(aimedArrivalTime));
@@ -111,21 +122,26 @@ const getStopInformation = async (stationId) => {
     return response;
 }
 
-const subtractDates = (newDate, oldDate) => {
-    let ms = newDate.valueOf() - oldDate.valueOf();
-    //let d, h, m, s;
-    let m, s;
+const subtractDates = (dateFuture, dateNow) => {
+    let ms = dateFuture - dateNow;
+    let m, s, h, d;
     s = Math.floor(ms / 1000);
     m = Math.floor(s / 60);
+    h = Math.floor(m / 60);
     s = s % 60;
     m = m % 60;
-    //h = Math.floor(m / 60);
-    
-    //d = Math.floor(h / 24);
-    //h = h % 24;
-    return `${m} min:${s} sec  `;
-    // shall do this return [ d, h, m, s ];
-    //return { d: d, h: h, m: m, s: s };
+    h = h % 24;
+    if (h > 0){
+        return `${dateFuture.toTimeString().slice(0, 5)}  `;
+    }
+    d = Math.floor(h / 24);
+    if(d > 0){
+        return `${dateNow.toTimeString()}`
+    }
+    if (ms < 0){
+        return `Now!  `;
+    }
+    return `${m} min:${s} sec `;
 
 }
 

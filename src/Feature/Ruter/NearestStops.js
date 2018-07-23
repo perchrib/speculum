@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import ToggleStop from './ToggleStop';
-import {getNearestStops, getRadiusOfPosition, getTransportationType} from '../../Api/Ruter';
+import {getNearestStops} from '../../Api/Ruter';
 
 class NearestStops extends Component{
     constructor(props){
