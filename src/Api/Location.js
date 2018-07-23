@@ -17,9 +17,9 @@ const loadPosition = async (responseObj) => {
     try {
 
         const position = await getCurrentPosition();
-        //const { latitude, longitude } = position.coords;
-        var latitude = 59.911491;
-        var longitude = 10.757933;
+        const { latitude, longitude } = position.coords;
+        // var latitude = 59.911491;
+        // var longitude = 10.757933;
         var {Easting, Northing}= utm.convertLatLngToUtm(latitude, longitude, 7);
         // convert to string to avoid decimals and convert back to int (UTM format no need decimals)
         var eastStr = parseInt(Easting.toString().split('.')[0], 10);
