@@ -17,7 +17,7 @@ class ToggleLine extends Component{
         const platformList = this.props.lines.map((line) =>
         <ListGroup key={line.id.toString()}>
             <ListGroupItem>
-                <ListGroupItemHeading>{line.type} {line.name} - To {line.destinationName}</ListGroupItemHeading>
+                <ListGroupItemHeading style={transportTypeHeading(line)}>{line.type} {line.name} - To {line.destinationName}</ListGroupItemHeading>
                     <Times arrivals={line.timeLeftToArrival}/>
             </ListGroupItem>
         </ListGroup>
@@ -31,6 +31,45 @@ class ToggleLine extends Component{
         );
     }
 }
+const transportTypeHeading = (props) =>{
+    let transportType = props.type;
+    var style = {backgroundColor: '', color: 'white', content: ''};
+    switch(transportType){
+        case "Walking":
+        case "AirportBus":
+            style.backgroundColor = 'blue';
+            break;
+
+        case "Bus":
+            style.backgroundColor = 'red';
+            style.content = "\f207";
+            break;
+        case "Dummy":
+            style.backgroundColor = 'blue';
+            break;
+        case "AirportTrain":
+            style.backgroundColor = 'blue';
+            break;
+        case "Boat":
+            style.backgroundColor = 'blue';
+            break;
+        case "Train":
+            style.backgroundColor = 'blue';
+            break;
+        case "Tram":
+            style.backgroundColor = 'lightskyblue';
+            break;
+        case "Metro":
+            style.backgroundColor = 'rgb(236, 112, 12)';
+            break;
+    }
+    return style;
+}
+
+const lineHeading = (props) => {
+
+}
+
 
 function Times(props){
     const arrivals = props.arrivals.slice(0,4);
