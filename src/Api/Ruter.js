@@ -146,9 +146,9 @@ const subtractDates = (dateFuture, dateNow) => {
         return `${dateNow.toTimeString()}`
     }
     if (ms < 0){
-        return `Now!  `;
+        return `Now! `;
     }
-    return `${m} m:${s} s `;
+    return `${m}m:${s}s `;
 
 }
 

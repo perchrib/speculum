@@ -25,7 +25,7 @@ class ToggleLine extends Component{
 
         return (
             <div>
-            <h2>Platform {this.props.platformNumber}</h2>    
+            <h2 style={{textAlign:'center', paddingTop: 5, paddingBottom: 5}}>Platform {this.props.platformNumber}</h2>    
             {this.props.lines.length > 0 ? platformList : <span>Ingenting</span>}
             </div>
         );
@@ -33,7 +33,7 @@ class ToggleLine extends Component{
 }
 
 function Times(props){
-    const arrivals = props.arrivals.slice(0,5);
+    const arrivals = props.arrivals.slice(0,4);
     const listItem = arrivals.map((time, index) => 
         index == 0 ? <span key={index} style={{paddingRight: '20px', fontSize: '20px'}}><b>{time}</b></span> : <span style={{fontSize: '20px'}} key={index}> {time}</span>
     );

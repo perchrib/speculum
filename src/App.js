@@ -28,13 +28,13 @@ class App extends Component {
 
     render() {
         return (
-            <Container fluid={true}>
+            <Container style={{paddingLeft: "5px", paddingRight: "5px"}} fluid={true}>
                 <Row>
                     <Col>
                         <Clock />
                     </Col>
                 </Row>
-                    <Col>
+                    <Col style={{paddingLeft: "0px", paddingRight: "0px"}}>
                         {/* {renderRuter(this.state.position, this.state.isLoading)} */}
                         <RenderRuter isLoading={this.state.isLoading} position={this.state.position} />
                     </Col>

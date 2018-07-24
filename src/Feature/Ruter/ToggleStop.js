@@ -44,12 +44,13 @@ class ToggleStop extends Component{
         }
         return (
             <div>
-            <Button  onClick={this.toggle} style={{ marginBottom: '1rem' }} size="lg" color="secondary" block>{this.props.name} - {this.props.distance}m </Button>
+            <Button  onClick={this.toggle} style={{ marginBottom: '1rem', whiteSpace: "inherit"}} size="lg" color="info" block>{this.props.name} - {this.props.distance}m </Button>
             <Collapse isOpen={this.state.collapse}>
                 <Card>
-                    <CardBody>
+                    <CardBody  style={{padding: "5px 5px 5px 5px"}}>
                     <div>
-                    <h1>{this.props.name} {this.props.id}</h1>
+                    {/* <h1>{this.props.name} {this.props.id}</h1> */}
+                    <h1 style={{textAlign:'center'}}>{this.props.name}</h1>
                     
                     <div>{listItems}</div>
                     </div>
