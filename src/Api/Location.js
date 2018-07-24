@@ -15,6 +15,7 @@ const getPosition = async() => {
   //https://steemit.com/programming/@leighhalliday/converting-geolocation-from-callbacks-into-async-await-javascript
 const loadPosition = async (responseObj) => {
     try {
+        
         const position = await getCurrentPosition();
         const { latitude, longitude } = position.coords;
         // var latitude = 59.911491;
