@@ -28,7 +28,7 @@ class App extends Component {
 
     render() {
         return (
-            <Container fluid={false}>
+            <Container fluid={true}>
                 <Row>
                     <Col>
                         <Clock />

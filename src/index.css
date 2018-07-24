@@ -2,6 +2,12 @@ body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;  
+  /* Avoid horizontal scroll on small screens */
+  overflow-x: hidden;
+  width: 100%;
+  /* END */
+  
   /* background-color: #181712; */
   /* -webkit-text-fill-color: aliceblue */
+
 }
