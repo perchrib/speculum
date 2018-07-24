@@ -33,9 +33,9 @@ class ToggleLine extends Component{
 }
 
 function Times(props){
-    const arrivals = props.arrivals.slice(0,7);
+    const arrivals = props.arrivals.slice(0,5);
     const listItem = arrivals.map((time, index) => 
-        <span key={index}> {time}</span>
+        index == 0 ? <span key={index} style={{paddingRight: '20px', fontSize: '20px'}}><b>{time}</b></span> : <span style={{fontSize: '20px'}} key={index}> {time}</span>
     );
     return <ListGroupItemText>{listItem}</ListGroupItemText >;
 }

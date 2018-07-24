@@ -138,7 +138,7 @@ const subtractDates = (dateFuture, dateNow) => {
     s = s % 60;
     m = m % 60;
     h = h % 24;
-    if (h > 0){
+    if (h > 0 || m > 12){
         return `${dateFuture.toTimeString().slice(0, 5)}  `;
     }
     d = Math.floor(h / 24);
@@ -148,7 +148,7 @@ const subtractDates = (dateFuture, dateNow) => {
     if (ms < 0){
         return `Now!  `;
     }
-    return `${m} min:${s} sec `;
+    return `${m} m:${s} s `;
 
 }
 
