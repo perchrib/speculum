@@ -31,7 +31,7 @@ class NearestStops extends Component{
                     <p>{this.props.utmEast} -- {this.props.utmEast + 500}</p>
                 <h2>Y</h2>
                     <p>{this.props.utmNorth} -- {this.props.utmNorth + 500}</p> */}
-                <h1 style={{textAlign: 'center'}} >Nearest Stops</h1>
+                <h1 style={{textAlign: 'center'}} >Nearest Stops Here!</h1>
                 {renderStops(this.state.stops)}
             </div>
         );
