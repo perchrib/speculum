@@ -112,13 +112,11 @@ const getStopInformation = async (stationId) => {
         });
         var stopData = [];
         let platformKeys = Array.from(platforms.keys());
-        platformKeys.sort(function(n_1, n_2){
-            try{
-                return parseInt(n_1, 10) - parseInt(n_2, 10);
-            }
-            catch(error){
-                return n_1;
-            }
+        platformKeys.sort(function(a, b){
+            if (isNaN(a) || isNaN(b)) {
+                return a > b ? 1 : -1;
+              }
+              return a - b;
         });
         platformKeys.forEach((key) => {
             stopData.push({platform: key, lines: platforms.get(key)});
